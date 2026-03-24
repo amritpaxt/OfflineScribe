@@ -13,7 +13,7 @@ Most AI writing tools (ChatGPT, Grammarly, etc.) send your writing to their serv
 - Your personal/confidential writing is exposed to third parties
 - You need constant internet connectivity
 - You pay subscription fees per month
-- Your prompts train their models
+- Your prompts train their model
 
 ### The Solution: OfflineScribe
 A **professional-grade writing assistant** that:
