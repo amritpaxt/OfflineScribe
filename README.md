@@ -6,7 +6,7 @@ A **completely private, offline-first AI writing assistant** that runs entirely 
 
 ---
 
-## 🎯 What Exactly Did You Build?
+## 🎯 What Exactly is Build?
 
 ### The Problem
 Most AI writing tools (ChatGPT, Grammarly, etc.) send your writing to their servers. This means:
