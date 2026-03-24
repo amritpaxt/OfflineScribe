@@ -9,7 +9,7 @@ import { modes } from '../prompts/systemPrompts';
 
 export function ChatTab() {
   const { isLoading, isModelLoaded, output, error, generate, setOutput, loaderState, loaderProgress } = useRunAnywhere();
-  const [mode, setMode] = useState('email');
+  const [mode, setMode] = useState<keyof typeof modes>('email');
   const [prompt, setPrompt] = useState('');
   const [showToneRewriter, setShowToneRewriter] = useState(false);
   const [showPDFDropzone, setShowPDFDropzone] = useState(false);
@@ -19,7 +19,7 @@ export function ChatTab() {
     await generate(systemPrompt, prompt, null);
   };
 
-  const handlePDFExtracted = (text) => {
+  const handlePDFExtracted = (text: string) => {
     if (mode === 'summary') {
       setPrompt(text);
     } else {

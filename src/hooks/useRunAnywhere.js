@@ -35,48 +35,51 @@ export function useRunAnywhere() {
       setError(null);
       setOutput('');
 
+      const timeoutId = setTimeout(() => {
+        setIsGenerating(false);
+        setError('⏱️ Generation timeout (>90 sec). Model may be overloaded.');
+      }, 90000); // 90 sec hard stop
+
       try {
         const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}`;
         
-        let result = await TextGeneration.generateStream(
-          fullPrompt,
-          { maxTokens: 256, temperature: 0.9 }
-        );
+        console.log('[generate] Starting with prompt:', fullPrompt.slice(0, 80));
         
-        if (!result || !result.stream) {
-          throw new Error('Invalid TextGeneration response');
+        const result = await TextGeneration.generateStream(fullPrompt, {
+          maxTokens: 128,
+          temperature: 0.9,
+        });
+
+        if (!result?.stream) {
+          throw new Error('Stream not available');
         }
 
-        const { stream, cancel } = result;
-        cancelRef.current = cancel;
-        
+        cancelRef.current = result.cancel;
         let accumulated = '';
         let tokenCount = 0;
-        const startTime = Date.now();
-        const maxTime = 120000; // 2 min timeout
 
-        for await (const token of stream) {
-          if (Date.now() - startTime > maxTime) {
-            setError('Generation timeout - took too long');
-            break;
-          }
-          
-          if (!token) continue;
+        for await (const token of result.stream) {
+          if (!token || typeof token !== 'string') continue;
           
           accumulated += token;
           setOutput(accumulated);
           tokenCount++;
-          
-          if (tokenCount >= 256) break; // Safety: stop after 256 tokens
+
+          // Safety: Hard stop after 128 tokens
+          if (tokenCount >= 128) break;
         }
+
+        console.log('[generate] Completed with', tokenCount, 'tokens');
+        clearTimeout(timeoutId);
       } catch (err) {
+        clearTimeout(timeoutId);
         console.error('[generate] Error:', err);
         if (err.name !== 'AbortError') {
-          const msg = err instanceof Error ? err.message : String(err);
-          setError(`Generation failed: ${msg}`);
+          setError(`Failed: ${err.message || String(err)}`);
         }
       } finally {
         setIsGenerating(false);
+        clearTimeout(timeoutId);
       }
     },
     [loader.state]
